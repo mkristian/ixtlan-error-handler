@@ -1,0 +1,31 @@
+h1. Rails Error Dumper
+
+p. the main idea here is notify the developers on error but in a way to protect privacy of the users of the system. to do so ALL data need to remain on the server and they need to be deleted after period of time.
+
+* first to dump as much as possible onto the filesystem of the server when an error occurs, i.e. the environment, the request, the response, the session, etc
+
+* notify the developers
+
+* delete expired error dumps
+
+p. the next idea is to collect all possible rails exception and map them to three error pages and pass on a message. for each exception you can decide whether an error dump is needed or not.
+
+h2. install
+
+p. in Gemfile add *gem 'ixtlan-error-handler'*
+
+p. for the configuration add for example in _config/initializers/error_handler.rb_
+
+bc. config.error_dumper.dump_dir = Rails.root + "/log/errors" # default: log/errors
+config.error_dumper.email_from = "no-reply@example.com"
+config.error_dumper.email_to = "developer1@example.com,developer2@example.com"
+config.error_dumper.keep_dumps = 30 # days
+config.skip_rescue_module = true # do not include the predefined Rescue 
+
+h2. relation to ixtlan gem
+
+p. the ixtlan gem provides a setup generator which adds configuration examples for this gem in _config/initializer/ixtlan.rb_ (the dynamic configuration is part of the ixtlan gem and it is just easier to keep that inside that gem !!!)
+
+h2. relation to ixtlan-audit gem
+
+p. if that gem is present and loaded than any error will be log with the help of _Ixtlan::Audit::UserLogger_

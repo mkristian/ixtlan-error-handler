@@ -15,16 +15,16 @@ module Ixtlan
       end
 
       def dump_dir
-        unless @dump_dir
+        if @dump_dir.blank?
           @dump_dir = File.join(Rails.root, "log", "errors")
           FileUtils.mkdir_p(@dump_dir)
         end
         @dump_dir 
       end
 
-      def dump_dir=(dr)
+      def dump_dir=(dir)
         @dump_dir = dir
-        FileUtils.mkdir_p(@dump_dir) if dir
+        FileUtils.mkdir_p(@dump_dir) unless dir.blank?
         @dump_dir
       end
       
@@ -34,7 +34,7 @@ module Ixtlan
         logger = Logger.new(log_file)
 
         dump_environment(logger, exception, controller)
-        Mailer.deliver_error_notification(@email_from, @email_to, exception, log_file) unless (@email_to.blank? || @email_from.blank?)
+        Mailer.error_notification(@email_from, @email_to, exception, log_file).deliver unless (@email_to.blank? || @email_from.blank?)
         log_file
       end
 

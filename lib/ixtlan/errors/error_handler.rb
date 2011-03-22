@@ -5,27 +5,31 @@ module Ixtlan
       protected
 
       def internal_server_error(exception)
+        log_user_error(exception)
         dump_error(exception)
-        status = :internal_server_error
-        error_page(:internal_server_error, exception, "internal server error: #{exception.class.name}")
+        error_page(:internal_server_error, "internal server error: #{exception.class.name}")
       end
 
       def page_not_found(exception)
         log_user_error(exception)
-        status = rescue_responses[exception.class.name]
-        status = status == :internal_server_error ? :not_found : status
-        error_page(status, exception, "page not found")
+        error_page(:not_found, "page not found")
       end
+        #status = rescue_responses[exception.class.name]
+        #status = status == :internal_server_error ? :not_found : status
+        #error_page(status, "page not found")
 
       def stale_resource(exception)
         log_user_error(exception)
-        respond_to do |format|
-          format.html {
-            render_stale_error_page
-          }
-          format.xml { head :conflict }
-        end
+        error_page(:conflict, "stale resource")
       end
+
+      #   respond_to do |format|
+      #     format.html {
+      #       render_stale_error_page
+      #     }
+      #     format.xml { head :conflict }
+      #   end
+      # end
 
       def render_error_page_with_session(status)
         render :template => "errors/error_with_session", :status => status
@@ -35,15 +39,15 @@ module Ixtlan
         render :template => "errors/error", :status => status
       end
 
-      def render_stale_error_page
-        render :template => "errors/stale", :status => :conflict
-      end
+      # def render_stale_error_page
+      #   render :template => "errors/stale", :status => :conflict
+      # end
 
       private
 
       if defined? ::Ixtlan::Audit
         def user_logger
-          @user_logger ||= Ixtlan::Audit::UserLogger.new(Rails.application.config.audit_manager)
+          @user_logger ||= Ixtlan::Audit::UserLogger.new(Rails.configuration.audit_manager)
         end
 
         def log_user_error(exception)
@@ -56,7 +60,7 @@ module Ixtlan
         end
       end
 
-      def error_page(status, exception, notice)
+      def error_page(status, notice)
         respond_to do |format|
           format.html {
             @notice = notice
@@ -72,7 +76,6 @@ module Ixtlan
       end
 
       def dump_error(exception)
-        log_user_error(exception)
         Rails.configuration.error_dumper.dump(self, exception)
       end
     end

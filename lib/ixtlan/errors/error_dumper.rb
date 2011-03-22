@@ -1,4 +1,6 @@
 require 'ixtlan/errors/mailer'
+require 'fileutils'
+
 module Ixtlan
   module Errors
     class ErrorDumper
@@ -65,7 +67,7 @@ module Ixtlan
 
         dump_environment_header(logger, "EXCEPTION");
         logger.error("#{exception.class}:#{exception.message}")
-        logger.error("\t" + exception.backtrace.join("\n\t"))
+        logger.error("\t" + exception.backtrace.join("\n\t")) if exception.backtrace
       end
 
       def dump_hashmap(logger, map)

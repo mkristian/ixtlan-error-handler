@@ -14,22 +14,11 @@ module Ixtlan
         log_user_error(exception)
         error_page(:not_found, "page not found")
       end
-        #status = rescue_responses[exception.class.name]
-        #status = status == :internal_server_error ? :not_found : status
-        #error_page(status, "page not found")
 
       def stale_resource(exception)
         log_user_error(exception)
         error_page(:conflict, "stale resource")
       end
-
-      #   respond_to do |format|
-      #     format.html {
-      #       render_stale_error_page
-      #     }
-      #     format.xml { head :conflict }
-      #   end
-      # end
 
       def render_error_page_with_session(status)
         render :template => "errors/error_with_session", :status => status
@@ -38,10 +27,6 @@ module Ixtlan
       def render_error_page(status)
         render :template => "errors/error", :status => status
       end
-
-      # def render_stale_error_page
-      #   render :template => "errors/stale", :status => :conflict
-      # end
 
       private
 

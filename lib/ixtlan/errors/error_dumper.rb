@@ -1,85 +1,109 @@
 require 'ixtlan/errors/mailer'
 require 'fileutils'
+require 'slf4r/logger'
+
+# unless Fixnum.respond_to? :days
+#   class Fixnum
+#     def days
+#       self
+#     end
+    
+#     def ago
+#       DateTime.now - 86000 * self
+#     end
+#   end
+# end
 
 module Ixtlan
   module Errors
     class ErrorDumper
       
-      attr_accessor :dump_dir, :email_from, :email_to, :keep_dumps
+      private
 
-      def keep_dumps
-        @keep_dumps ||= 90
+      include ::Slf4r::Logger
+
+      public
+
+      attr_accessor :from_email, :to_emails, :keep_dumps, :base_url
+
+      def initialize
+        @keep_dumps = 0
       end
 
       def keep_dumps=(ttl)
         @keep_dumps = ttl.to_i
-        cleanup
-      end
-
-      def dump_dir
-        if @dump_dir.blank?
-          @dump_dir = File.join(Rails.root, "log", "errors")
-          FileUtils.mkdir_p(@dump_dir)
-        end
-        @dump_dir 
-      end
-
-      def dump_dir=(dir)
-        @dump_dir = dir
-        FileUtils.mkdir_p(@dump_dir) unless dir.blank?
-        @dump_dir
+        daily_cleanup
       end
       
-      def dump(controller, exception)
-        cleanup
-        log_file = log_filename
-        logger = Logger.new(log_file)
+      def error_dump_model(model = nil)
+        @error_dump ||= model.nil? ? ::Error : model.classify
+      end
 
-        dump_environment(logger, exception, controller)
-        Mailer.error_notification(@email_from, @email_to, exception, log_file).deliver unless (@email_to.blank? || @email_from.blank?)
-        log_file
+      def dump(controller, exception)
+        daily_cleanup
+
+        error = dump_environment(exception, controller)
+        Mailer.error_notification(@from_email, @to_emails, exception, "#{@base_url}/#{error.id}").deliver unless (@to_emails.blank? || @from_email.blank?)
+        "#{@base_url}/#{error.id}"
       end
 
       private
 
-      def log_filename(time = Time.now)
-        error_log_id = "#{time.tv_sec}#{time.tv_usec}"
-        File.join(dump_dir, "error-#{error_log_id}.log")
+      def dump_environment(exception, controller)
+        dump = error_dump_model.new
+        
+        dump.request = dump_hashmap(controller.request.env)
+
+        dump.response = dump_hashmap(controller.response.headers)
+
+        dump.session = dump_hashmap(controller.session)
+
+        dump.parameters = dump_hashmap(controller.params)
+
+        dump.message = exception.message
+        
+        dump.clazz = exception.class.to_s
+        
+        dump.backtrace = exception.backtrace.join("\n") if exception.backtrace
+
+        dump if dump.save
       end
 
-      def dump_environment_header(logger, header)
-        logger.error("\n===================================================================\n#{header}\n===================================================================\n");
+      def dump_hashmap(map, indent = '')
+        result = ''
+        map.each do |key,value|
+          if value.is_a? Hash
+            result << "#{indent}#{key} => {\n"
+            result << dump_hashmap(value, "#{indent}  ") 
+            result << "#{indent}}\n"
+          else
+            result << "#{indent}#{key} => #{value.nil? ? 'nil': value}\n"
+          end
+        end
+        result
       end
 
-      def dump_environment(logger, exception, controller)
-        dump_environment_header(logger, "REQUEST DUMP");
-        dump_hashmap(logger, controller.request.env)
-
-        dump_environment_header(logger, "RESPONSE DUMP");
-        dump_hashmap(logger, controller.response.headers)
-
-        dump_environment_header(logger, "SESSION DUMP");
-        dump_hashmap(logger, controller.session)
-
-        dump_environment_header(logger, "PARAMETER DUMP");
-        map = {}
-        dump_hashmap(logger, controller.params.each{ |k,v| map[k]=v })
-
-        dump_environment_header(logger, "EXCEPTION");
-        logger.error("#{exception.class}:#{exception.message}")
-        logger.error("\t" + exception.backtrace.join("\n\t")) if exception.backtrace
-      end
-
-      def dump_hashmap(logger, map)
-        for key,value in map
-          logger.error("\t#{key} => #{value.inspect}")
+      def daily_cleanup
+        if(@last_cleanup.nil? || @last_cleanup < 1.days.ago)
+          @last_cleanup = Date.today
+          begin
+            delete_all
+            logger.info("cleaned error dumps")
+          rescue Exception => e
+            logger.error("cleanup error dumps", e)
+          end
         end
       end
 
-      def cleanup
-        ref_log_file = log_filename(keep_dumps.ago)
-        Dir[File.join(dump_dir, "error-*.log")].each do |f|
-          FileUtils.rm(f) if File.basename(f) < ref_log_file
+      private
+      
+      if defined? ::DataMapper
+        def delete_all
+          error_dump_model.all(:created_at.lte => keep_dumps.days.ago).destroy!
+        end
+      else # ActiveRecord
+        def delete_all
+          error_dump_model.all(:conditions => ["created_at <= ?", keep_dumps.days.ago]).each(&:delete)
         end
       end
     end

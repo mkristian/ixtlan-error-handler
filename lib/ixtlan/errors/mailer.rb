@@ -2,9 +2,9 @@ module Ixtlan
   module Errors
     class Mailer < ActionMailer::Base
       
-      def error_notification(email_from, emails_to, exception, error_file)
+      def error_notification(email_from, emails_to, exception, error_url)
         @subject    = exception.message
-        @text       = "#{error_file}"
+        @text       = "#{error_url}"
         @recipients = emails_to
         @from       = email_from
         @sent_on    = Time.now

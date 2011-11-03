@@ -14,11 +14,8 @@ module Ixtlan
           ActionMailer::Base.view_paths= [ActionMailer::Base.view_paths, path].flatten 
         end
 
-        app.config.class.class_eval do
-          attr_accessor :error_dumper, :skip_rescue_module
-          app.config.error_dumper = ErrorDumper.new
-          app.config.skip_rescue_module = false
-        end
+        app.config.error_dumper = ErrorDumper.new
+        app.config.skip_rescue_module = false
       end
       
       config.after_initialize do |app|

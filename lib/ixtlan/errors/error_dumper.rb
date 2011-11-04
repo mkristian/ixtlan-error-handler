@@ -27,12 +27,13 @@ module Ixtlan
       attr_accessor :from_email, :to_emails, :keep_dumps, :base_url
 
       def initialize
-        @keep_dumps = 0
+        @keep_dumps = 30
       end
 
       def keep_dumps=(ttl)
+        old = @keep_dumps
         @keep_dumps = ttl.to_i
-        daily_cleanup
+        daily_cleanup if old != @keep_dumps
       end
       
       def error_dump_model(model = nil)
@@ -85,7 +86,7 @@ module Ixtlan
 
       def daily_cleanup
         if(@last_cleanup.nil? || @last_cleanup < 1.days.ago)
-          @last_cleanup = Date.today
+          @last_cleanup = 0.days.ago # to have the right type
           begin
             delete_all
             logger.info("cleaned error dumps")

@@ -8,10 +8,12 @@ module Ixtlan
     class Railtie < Rails::Railtie
 
       config.before_configuration do |app|
-        
-        path = File.join(File.dirname(__FILE__), "..", "..")
-        unless ActionMailer::Base.view_paths.member? path
-          ActionMailer::Base.view_paths= [ActionMailer::Base.view_paths, path].flatten 
+
+        unless defined? Pony
+          path = File.join(File.dirname(__FILE__), "..", "..")
+          unless ActionMailer::Base.view_paths.member? path
+            ActionMailer::Base.view_paths= [ActionMailer::Base.view_paths, path].flatten 
+          end
         end
 
         app.config.error_dumper = ErrorDumper.new

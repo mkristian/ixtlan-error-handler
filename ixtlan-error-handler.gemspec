@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.email = ['m.kristian@web.de']
 
   s.files = Dir['MIT-LICENSE']
-  s.licenses << 'MIT-LICENSE'
+  s.licenses << 'MIT'
 #  s.files += Dir['History.txt']
   s.files += Dir['README.textile']
 #  s.extra_rdoc_files = ['History.txt','README.textile']
@@ -23,9 +23,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'slf4r', '~> 0.4.2'
   s.add_development_dependency 'rspec', '~> 2.11'
   s.add_development_dependency 'rake', '~> 10.0.2'
-  s.add_development_dependency 'dm-core', IXTLAN_ERROR_HANDLER_DM_VERSION
-  s.add_development_dependency 'dm-migrations', IXTLAN_ERROR_HANDLER_DM_VERSION
-  s.add_development_dependency 'dm-sqlite-adapter', IXTLAN_ERROR_HANDLER_DM_VERSION
+  s.add_development_dependency 'dm-core', '~> 1.2.0'
+  s.add_development_dependency 'dm-migrations', '~> 1.2.0'
+  s.add_development_dependency 'dm-sqlite-adapter', '~> 1.2.0'
+  s.add_development_dependency 'copyright-header', '~> 1.0.7'
 end
 
 # vim: syntax=Ruby

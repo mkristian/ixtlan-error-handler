@@ -6,6 +6,10 @@ module Ixtlan
            # needs 'optimistic_persistence'
            controller.rescue_from ::Ixtlan::ModifiedBy::StaleResourceError, :with => :stale_resource
          end
+         if defined? ::Ixtlan::Optimistic
+           # needs 'optimistic_persistence'
+           controller.rescue_from ::Ixtlan::Optimistic::ObjectStaleException, :with => :stale_resource
+         end
 
         if defined? ::Ixtlan::Guard
           # needs 'guard'
@@ -25,7 +29,12 @@ module Ixtlan
 
         # standard rails controller
         controller.rescue_from ::ActionController::RoutingError, :with => :page_not_found
-        controller.rescue_from ::ActionController::UnknownAction, :with => :page_not_found
+
+        if defined? ::AbstractController::ActionNotFound
+          controller.rescue_from ::AbstractController::ActionNotFound, :with => :page_not_found
+        else
+          controller.rescue_from ::ActionController::UnknownAction, :with => :page_not_found
+        end
         controller.rescue_from ::ActionController::MethodNotAllowed, :with => :page_not_found
         controller.rescue_from ::ActionController::NotImplemented, :with => :page_not_found
         controller.rescue_from ::ActionController::InvalidAuthenticityToken, :with => :stale_resource

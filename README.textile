@@ -1,10 +1,10 @@
 h1. Rails Error Dumper
 
-* [![Build Status](https://secure.travis-ci.org/mkristian/ixtlan-error-handler.png)](http://travis-ci.org/mkristian/ixtlan-error-handler)
+* "!https://secure.travis-ci.org/mkristian/ixtlan-error-handler.png!":http://travis-ci.org/mkristian/ixtlan-error-handler
 
-* [![Dependency Status](https://gemnasium.com/mkristian/ixtlan-error-handler.png)](https://gemnasium.com/mkristian/ixtlan-error-handler)
+* "!https://gemnasium.com/mkristian/ixtlan-error-handler.png!":https://gemnasium.com/mkristian/ixtlan-error-handler
 
-* [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/mkristian/ixtlan-error-handler)
+* "!https://codeclimate.com/badge.png!":https://codeclimate.com/github/mkristian/ixtlan-error-handler
 
 p. the main idea here is notify the developers on error but in a way to protect privacy of the users of the system. to do so ALL data need to remain on the server and they need to be deleted after period of time.
 

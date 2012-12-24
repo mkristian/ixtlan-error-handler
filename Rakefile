@@ -19,6 +19,7 @@ task :headers do
     :copyright_holders => s.authors,
     :copyright_years => [Time.now.year],
     :add_path => 'lib',
+    :remove_path => 'lib',
     :output_dir => './'
   }
 

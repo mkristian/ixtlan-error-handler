@@ -1,5 +1,4 @@
 # -*- mode: ruby -*-
-IXTLAN_ERROR_HANDLER_DM_VERSION = '~> 1.2.0'
 Gem::Specification.new do |s|
   s.name = 'ixtlan-error-handler'
   s.version = '0.2.1'
@@ -8,7 +7,7 @@ Gem::Specification.new do |s|
   s.description = 'dump errors on filesystem and notify developers, map different errors to specific pages'
   s.homepage = 'http://github.com/mkristian/ixtlan-error-handler'
 
-  s.authors = ['mkristian']
+  s.authors = ['Christian Meier']
   s.email = ['m.kristian@web.de']
 
   s.files = Dir['MIT-LICENSE']

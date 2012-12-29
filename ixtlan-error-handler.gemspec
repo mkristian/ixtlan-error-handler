@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'dm-core', '~> 1.2.0'
   s.add_development_dependency 'dm-migrations', '~> 1.2.0'
   s.add_development_dependency 'dm-sqlite-adapter', '~> 1.2.0'
+  s.add_development_dependency 'pony', '~> 1.4'
   s.add_development_dependency 'copyright-header', '~> 1.0.7'
 end
 

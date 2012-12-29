@@ -122,7 +122,7 @@ module Ixtlan
         if(@last_cleanup.nil? || @last_cleanup < (now - 1))
           @last_cleanup = now
           begin
-            delete_all( now - keep_logs )
+            delete_all( now - keep_dumps )
             logger.info "cleaned error dumps"
           rescue Exception => e
             logger.warn "error cleaning up error dumps: #{e.message}" 

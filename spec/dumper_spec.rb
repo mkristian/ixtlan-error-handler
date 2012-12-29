@@ -22,32 +22,14 @@ class Error
   end
 end
 
-module Ixtlan
-  module Errors
-    module ActionMailer
-      class Base
-        
-        def self.method_missing(method, *args)
-          self.new
-        end
+require 'pony'
+Pony.options = { :via => :test }
 
-        def self.deliver(val = nul)
-          @delivered = val if val
-          @delivered
-        end
-        def deliver
-          self.class.deliver(true)
-        end
-      end
-    end
-  end
-end
-
-require 'ixtlan/errors/error_dumper'
+require 'ixtlan/errors/dumper'
 require 'date'
 require 'logger'
 
-class Controller
+class Controller < Hash
 
   def request
     self
@@ -105,26 +87,29 @@ end
 
 DataMapper.setup(:default, "sqlite3::memory:")
 DataMapper.finalize
-DataMapper.repository.auto_migrate!
+DataMapper.auto_migrate!
 
-describe Ixtlan::Errors::ErrorDumper do
+describe Ixtlan::Errors::Dumper do
 
   before :each do
-    @dumper = Ixtlan::Errors::ErrorDumper.new
+    @dumper = Ixtlan::Errors::Dumper.new
+    @dumper.model = Error
     @dumper.base_url = "http://localhost"
     @controller = Controller.new
   end
 
   it "should dump env and not send notification" do
-    url = @dumper.dump(@controller, StandardError.new("dump it"))
-    url.should =~ /http:\/\/localhost\/[0-9]+/
+    send = @dumper.dump(StandardError.new("dump it"), @controller.request, @controller.response, @controller.session, @controller.params)
+    send.should be_false
+
     @dumper.from_email = "asd"
-    url = @dumper.dump(@controller, StandardError.new("dump it"))
-    url.should =~ /http:\/\/localhost\/[0-9]+/
+    send = @dumper.dump(StandardError.new("dump it"), @controller.request, @controller.response, @controller.session, @controller.params)
+    send.should be_false
+
     @dumper.from_email = nil
     @dumper.to_emails = "dsa"
-    url = @dumper.dump(@controller, StandardError.new("dump it"))
-    url.should =~ /http:\/\/localhost\/[0-9]+/
+    send = @dumper.dump(StandardError.new("dump it"), @controller.request, @controller.response, @controller.session, @controller.params)
+    send.should be_false
   end
 
   it "should clean up error dumps" do
@@ -132,16 +117,19 @@ describe Ixtlan::Errors::ErrorDumper do
     Error.all.size.should > 0
     @dumper.keep_dumps = 0
     Error.all.size.should == 0
-    @dumper.dump(@controller, StandardError.new("dump it"))
+
+    @dumper.dump(StandardError.new("dump it"), @controller.request, @controller.response, @controller.session, @controller.params)
     Error.all.size.should == 1
-    @dumper.dump(@controller, StandardError.new("dump it"))
+
+    @dumper.dump(StandardError.new("dump it"), @controller.request, @controller.response, @controller.session, @controller.params)
     Error.all.size.should == 2
   end
 
   it "should send notifications" do
     @dumper.to_emails = "das"
     @dumper.from_email = "asd"
-    @dumper.dump(@controller, StandardError.new("dump it"))
-    Ixtlan::Errors::ActionMailer::Base.delivered.should be_true
+    
+    send = @dumper.dump(StandardError.new("dump it"), @controller.request, @controller.response, @controller.session, @controller.params)
+    send.should be_true
   end
 end

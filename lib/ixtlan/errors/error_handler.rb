@@ -82,10 +82,10 @@ module Ixtlan
 
       def dump_error(exception)
         Rails.configuration.error_dumper.dump( exception, 
-                                               controller.request.env,
-                                               controller.response.headers,
-                                               controller.session,
-                                               controller.params )
+                                               request.env,
+                                               response.headers,
+                                               session,
+                                               params )
       end
     end
   end

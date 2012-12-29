@@ -73,6 +73,9 @@ module Ixtlan
                                      @to_emails, 
                                      exception, 
                                      "#{@base_url}/#{error.id}" ).deliver
+          true
+        else
+          false
         end
       end
 

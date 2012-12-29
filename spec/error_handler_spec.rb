@@ -46,7 +46,11 @@ class Rails
     self
   end
   
-  def self.dump(controller, exception)
+  def self.dump(exception, 
+                request, 
+                response, 
+                session, 
+                params)
     @dumped = exception
   end
 

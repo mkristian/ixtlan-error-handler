@@ -25,6 +25,9 @@ module Ixtlan
   module Errors
     class Cuba < ::CubaAPI
       define do
+        on get, 'last' do
+          write Ixtlan::Errors::Error.last
+        end
         on get, :number do |number|
           write Ixtlan::Errors::Error.get!( number )
         end

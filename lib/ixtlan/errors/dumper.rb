@@ -68,7 +68,7 @@ module Ixtlan
                                   session, 
                                   params )
 
-        if not @to_emails.blank? and not @from_email.blank?
+        if error.valid? and not @to_emails.blank? and not @from_email.blank?
           Mailer.error_notification( @from_email, 
                                      @to_emails, 
                                      exception, 
@@ -88,9 +88,7 @@ module Ixtlan
       def dump_environment( exception, request, response, session , params )
         dump = model.new
         
-        dump.request = dump_hashmap( request )
-
-        dump.response = dump_hashmap( response )
+        dump.request = dump_hashmap( request, '', true )
 
         dump.session = dump_hashmap( session )
 
@@ -101,13 +99,15 @@ module Ixtlan
         dump.clazz = exception.class.to_s
         
         dump.backtrace = exception.backtrace.join("\n") if exception.backtrace
-
-        dump if dump.save
+        
+        dump.save
+        dump
       end
 
-      def dump_hashmap(map, indent = '')
+      def dump_hashmap(map, indent = '', capital_keys_only = false )
         result = ''
         map.each do |key,value|
+          if !capital_keys_only || (key =~ /^[A-Z_]+$/) != nil
           if value.is_a? Hash
             result << "#{indent}#{key} => {\n"
             result << dump_hashmap(value, "#{indent}  ") 
@@ -115,7 +115,9 @@ module Ixtlan
           else
             result << "#{indent}#{key} => #{value.nil? ? 'nil': value}\n"
           end
+          end
         end
+        result.strip!
         result
       end
 

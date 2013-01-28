@@ -18,6 +18,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+require 'rack/request'
 module Ixtlan
   module Errors
     class Rack
@@ -61,8 +62,9 @@ module Ixtlan
           @app.call(env)
         rescue Exception => e
           status = @map[ e.class ] || 500
-          if status >= 500 
-            @dumper.dump( e, env, {}, {}, {} )
+          if status >= 500
+            req = ::Rack::Request.new env
+            @dumper.dump( e, env, {}, req.session, req.params )
           end
           if @dump_to_console
             warn "[Ixtlan] #{e.class}: #{e.message}"

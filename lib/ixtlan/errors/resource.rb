@@ -25,20 +25,28 @@ module Ixtlan
 
       include DataMapper::Resource
 
+      def self.storage_name(arg)
+        'ixtlan_errors'
+      end
+
       property :id, Serial
       
       property :clazz, String, :required => true, :length => 64
       property :message, String, :required => true, :length => 255
       property :backtrace, Text, :required => true, :length => 32768
-      property :request, Text, :required => true, :length => 64536
-      property :response, Text, :required => true, :length => 32768
+      property :request, Text, :required => true, :length => 32768
       property :session, Text, :required => true, :length => 16384
-      property :parameters, Text, :required => true, :length => 32768
+      property :parameters, Text, :required => false, :length => 32768
+      #property :body, Text, :required => false, :length => 64536
       
       property :created_at, DateTime
       
       before :save do
         self.created_at = DateTime.now
+      end
+
+      def to_s
+        "#{clazz}: #{message}"
       end
     end
   end

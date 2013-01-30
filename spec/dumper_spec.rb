@@ -1,26 +1,9 @@
 require 'dm-core'
 require 'dm-migrations'
 require 'slf4r/ruby_logger'
+require 'ixtlan/errors/resource'
 
-class Error
-  include DataMapper::Resource
-
-  property :id, Serial
-
-  property :message, String
-  property :clazz, String
-  property :request, Text
-  property :response, Text
-  property :session, Text
-  property :parameters, Text
-  property :backtrace, Text
-
-  property :created_at, DateTime
-
-  before :save do
-    self.created_at = DateTime.now
-  end
-end
+Error = Ixtlan::Errors::Error
 
 require 'pony'
 Pony.options = { :via => :test }
@@ -55,36 +38,6 @@ class Controller < Hash
   end
 end
 
-class NilClass
-  def blank?
-    true
-  end
-end
-
-class String
-  def blank?
-    size == 0
-  end
-end
-
-class Fixnum
-  def days
-    self
-  end
-  def ago
-    DateTime.now - 86000 * self
-  end
-end
-
-class DateTime
-  def tv_sec
-    sec
-  end
-  def tv_usec
-    0
-  end
-end
-
 DataMapper.setup(:default, "sqlite3::memory:")
 DataMapper.finalize
 DataMapper.auto_migrate!
@@ -113,7 +66,7 @@ describe Ixtlan::Errors::Dumper do
   end
 
   it "should clean up error dumps" do
-    Error.create(:message => 'msg')
+    Error.create(:message => 'msg', :clazz => StandardError.to_s)
     Error.all.size.should > 0
     @dumper.keep_dumps = 0
     Error.all.size.should == 0

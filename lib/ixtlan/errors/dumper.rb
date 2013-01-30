@@ -68,7 +68,7 @@ module Ixtlan
                                   session, 
                                   params )
 
-        if error.valid? and not @to_emails.blank? and not @from_email.blank?
+        if not error.id.nil? and not @to_emails.blank? and not @from_email.blank?
           Mailer.error_notification( @from_email, 
                                      @to_emails, 
                                      exception, 

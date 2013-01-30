@@ -33,9 +33,9 @@ module Ixtlan
       
       property :clazz, String, :required => true, :length => 64
       property :message, String, :required => true, :length => 255
-      property :backtrace, Text, :required => true, :length => 32768
-      property :request, Text, :required => true, :length => 32768
-      property :session, Text, :required => true, :length => 16384
+      property :backtrace, Text, :required => false, :length => 32768
+      property :request, Text, :required => false, :length => 32768
+      property :session, Text, :required => false, :length => 16384
       property :parameters, Text, :required => false, :length => 32768
       #property :body, Text, :required => false, :length => 64536
       

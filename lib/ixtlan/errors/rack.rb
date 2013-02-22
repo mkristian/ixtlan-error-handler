@@ -19,6 +19,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 require 'rack/request'
+require 'rack/utils'
 module Ixtlan
   module Errors
     class Rack
@@ -67,12 +68,12 @@ module Ixtlan
             @dumper.dump( e, env, {}, req.session, req.params )
           end
           if @dump_to_console
-            warn "[Ixtlan] #{e.class}: #{e.message}"
+            warn "[Ixtlan::Errors] #{e.class}: #{e.message}"
             warn "\t" + e.backtrace.join( "\n\t" ) if e.backtrace && status >= 500 
           end
           [ status, 
             {'Content-Type' =>  'text/plain'}, 
-            [''] ]
+            [ ::Rack::Utils::HTTP_STATUS_CODES[ status ] ] ]
         end
       end
       

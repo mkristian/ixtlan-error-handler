@@ -30,9 +30,16 @@ module Ixtlan
       if defined? ::Slf4r
         include ::Slf4r::Logger
       else
-        require 'logger'
+        class Log
+          def info( msg )
+            puts "[Ixtlan::Errors] #{msg}"
+          end
+          def warn( msg )
+            warn "[Ixtlan::Errors] #{msg}"
+          end
+        end
         def logger
-          @logger ||= Logger.new( STDOUT )
+          @logger ||= Log.new
         end
       end
 

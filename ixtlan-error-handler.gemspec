@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 Gem::Specification.new do |s|
   s.name = 'ixtlan-error-handler'
-  s.version = '0.4.0'
+  s.version = '0.4.1'
 
   s.summary = 'dump errors on filesystem and notify developers'
   s.description = 'dump errors on filesystem and notify developers, map different errors to specific pages'

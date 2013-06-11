@@ -45,10 +45,10 @@ module Ixtlan
         DEFAULT_MAP[ 404 ] << ::ActiveRecord::RecordNotFound
       end
 
-      def initialize(app, dumper, dump_to_console = false, map = {} )
+      def initialize(app, dumper, map = {} )
         @app = app
         @dumper = dumper
-        @dump_to_console = dump_to_console
+        @dump_to_console = dumper.keep_dumps == 0
         @map = {}
         DEFAULT_MAP.each do |status, list|
           list.each { |exp| @map[ exp ] = status }

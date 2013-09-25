@@ -46,6 +46,7 @@ describe Ixtlan::Errors::Dumper do
 
   before :each do
     @dumper = Ixtlan::Errors::Dumper.new
+    @dumper.send :instance_variable_set, '@keep_dumps'.to_sym, 1
     @dumper.model = Error
     @dumper.base_url = "http://localhost"
     @controller = Controller.new

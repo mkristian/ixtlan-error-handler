@@ -48,7 +48,6 @@ module Ixtlan
       def initialize(app, dumper, map = {} )
         @app = app
         @dumper = dumper
-        @dump_to_console = dumper.keep_dumps == 0
         @map = {}
         DEFAULT_MAP.each do |status, list|
           list.each { |exp| @map[ exp ] = status }
@@ -58,6 +57,10 @@ module Ixtlan
         end
       end
       
+      def dump_to_console
+        @dumper.keep_dumps == 0
+      end
+
       def call(env)
         begin
           @app.call(env)
@@ -67,13 +70,17 @@ module Ixtlan
             req = ::Rack::Request.new env
             @dumper.dump( e, env, {}, req.session, req.params )
           end
-          if @dump_to_console
-            warn "[Ixtlan::Errors] #{e.class}: #{e.message}"
+          warn "[Ixtlan::Errors] #{e.class}: #{e.message}"
+          if dump_to_console
+            # dump to console and raise exception to let rack create
+            # an error page
             warn "\t" + e.backtrace.join( "\n\t" ) if e.backtrace && status >= 500 
-          end
+            raise e
+          else
           [ status, 
             {'Content-Type' =>  'text/plain'}, 
             [ ::Rack::Utils::HTTP_STATUS_CODES[ status ] ] ]
+          end
         end
       end
       

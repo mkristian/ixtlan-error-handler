@@ -49,7 +49,7 @@ module Ixtlan
 
       def initialize( model = nil, &block )
         @model = model
-        @keep_dumps = 30
+        @keep_dumps = 0
         block.call( self ) if block
         @block = block
       end

@@ -74,13 +74,11 @@ module Ixtlan
           if dump_to_console
             # dump to console and raise exception to let rack create
             # an error page
-            warn "\t" + e.backtrace.join( "\n\t" ) if e.backtrace && status >= 500 
-            raise e
-          else
+            warn "\t" + e.backtrace.join( "\n\t" ) if e.backtrace && status >= 500
+          end
           [ status, 
             {'Content-Type' =>  'text/plain'}, 
             [ ::Rack::Utils::HTTP_STATUS_CODES[ status ] ] ]
-          end
         end
       end
       
